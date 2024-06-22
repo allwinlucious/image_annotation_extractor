@@ -32,7 +32,7 @@ def process_image(input_path, output_path):
             print(f"Processed: {filename}")
 
 # Example usage:
-input_folder = './cropped_images'  # Replace with your input folder path
+input_folder = './rotated_images'  # Replace with your input folder path
 output_folder = './thresholded_images'  # Replace with your output folder path
 
 process_image(input_folder, output_folder)

@@ -1,61 +1,63 @@
+import os
 import cv2
 import numpy as np
-import os
 
-# Function to rotate image to make the largest green line horizontal
-def rotate_to_horizontal(image):
-    # Convert BGR to HSV
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+# Function to rotate image to make green line horizontal
+def rotate_image_to_horizontal(input_folder, output_folder):
+    # Ensure output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
-    # Define range of green color in HSV
-    lower_green = np.array([40, 40, 40])
-    upper_green = np.array([80, 255, 255])
+    # Loop through all files in input folder
+    for filename in os.listdir(input_folder):
+        if filename.endswith(".jpg") or filename.endswith(".png"):  # Adjust file extensions as necessary
+            # Read the image
+            img_path = os.path.join(input_folder, filename)
+            img = cv2.imread(img_path)
 
-    # Threshold the HSV image to get only green colors
-    mask = cv2.inRange(hsv, lower_green, upper_green)
+            # Convert to HSV color space for better color segmentation
+            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # Find contours in the mask
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            # Define range of green color in HSV
+            lower_green = np.array([40, 40, 40])  # Adjust these values to your specific shade of green
+            upper_green = np.array([80, 255, 255])
 
-    # Find the largest contour (green line)
-    largest_contour = max(contours, key=cv2.contourArea)
+            # Threshold the HSV image to get only green colors
+            mask = cv2.inRange(hsv, lower_green, upper_green)
 
-    # Calculate minimum area bounding rectangle
-    rect = cv2.minAreaRect(largest_contour)
-    box = cv2.boxPoints(rect)
-    box = np.int0(box)
+            # Find contours in the mask
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Find the angle to rotate such that the largest green line becomes horizontal
-    angle = rect[2]
-    if rect[1][0] < rect[1][1]:  # If width < height, add 90 degrees
-        angle += 90
+            # Assume the largest contour is our green line
+            largest_contour = max(contours, key=cv2.contourArea)
 
-    # Get the rotation matrix for the angle
-    M = cv2.getRotationMatrix2D(rect[0], angle, 1.0)
+            # Fit a line to the contour
+            vx, vy, _, _ = cv2.fitLine(largest_contour, cv2.DIST_L2, 0, 0.01, 0.01)
 
-    # Rotate the original image
-    rotated = cv2.warpAffine(image, M, (image.shape[1], image.shape[0]))
+            # Calculate angle of the line
+            angle = np.arctan2(vy, vx) * 180 / np.pi
+            print(f"Angle: {angle}")
 
+            # Rotate image to make the line horizontal
+            rotated = rotate_image(img, angle)
+
+            # Save the rotated image to output folder
+            output_path = os.path.join(output_folder, filename)
+            cv2.imwrite(output_path, rotated)
+
+            print(f"Processed {filename} and saved to {output_path}")
+
+def rotate_image(image, angle):
+    # Ensure angle is float
+    angle = float(angle)
+    
+    # Rotate the image by the specified angle
+    rows, cols = image.shape[:2]
+    M = cv2.getRotationMatrix2D((cols/2, rows/2), angle, 1.0)
+    rotated = cv2.warpAffine(image, M, (cols, rows))
     return rotated
 
-# Path to folder containing cropped images
-folder_path = 'cropped_images/'
 
-# Iterate over all images in the folder
-for filename in os.listdir(folder_path):
-    if filename.endswith('.png'):
-        # Load image
-        image_path = os.path.join(folder_path, filename)
-        image = cv2.imread(image_path)
-
-        if image is None:
-            print(f"Error: Unable to load image {filename}")
-            continue
-
-        # Rotate image to make largest green line horizontal
-        rotated_image = rotate_to_horizontal(image)
-
-        # Save rotated image
-        output_path = os.path.join(folder_path, f'rotated_{filename}')
-        cv2.imwrite(output_path, rotated_image)
-        print(f"Rotated image saved as {output_path}")
+input_folder = './cropped_images'
+output_folder = './rotated_images'
+rotate_image_to_horizontal(input_folder, output_folder)

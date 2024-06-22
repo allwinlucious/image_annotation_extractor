@@ -10,8 +10,9 @@ reader = easyocr.Reader(['en'])  # Replace 'en' with the language(s) you want to
 
 # Function to remove non-numeric characters
 def remove_non_numeric(text):
-    cleaned_text = re.sub(r'\s+', ' ', text)
-    return re.sub(r'[a-zA-Z]', '', cleaned_text)
+    # Replace all non-digit and non-period characters with an empty string
+    cleaned_text = re.sub(r'[^\d.]', '', text)
+    return cleaned_text
 
 # Function to process each image
 def process_image(image_path):

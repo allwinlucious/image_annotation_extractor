@@ -21,6 +21,14 @@ for file in "$directory"/*.jpg; do
         # Step 2: Run find_annotations.py with the current filename
         python3 find_annotations.py "$filename"
 
+                # Step 3: Delete 'thresholded_images' folder if it exists
+        folder_to_delete="rotated_images"
+        if [ -d "$folder_to_delete" ]; then
+            rm -rf "$folder_to_delete"
+        fi
+
+        python3 rotate.py
+
         # Step 3: Delete 'thresholded_images' folder if it exists
         folder_to_delete="thresholded_images"
         if [ -d "$folder_to_delete" ]; then

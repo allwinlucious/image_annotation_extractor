@@ -75,7 +75,7 @@ for contour in contours:
 # Iterate over non-overlapping bounding boxes
 for i, (x, y, w, h) in enumerate(bounding_boxes):
     # Draw bounding box on the original image
-    cv2.rectangle(image_rgb, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    cv2.rectangle(image_rgb, (x, y), (x + w, y + h), (0, 0, 255), 2)
     
 
 
