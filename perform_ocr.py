@@ -4,7 +4,7 @@ import easyocr
 import numpy as np
 import re
 import csv
-
+import sys
 # Initialize EasyOCR reader
 reader = easyocr.Reader(['en'])  # Replace 'en' with the language(s) you want to recognize
 
@@ -56,7 +56,7 @@ folder_path = './thresholded_images'  # Replace with your folder path
 output_csv = './result.csv'  # Replace with your desired output CSV file path
 
 # Initialize a list to collect all cleaned text
-all_cleaned_text = []
+all_cleaned_text = [sys.argv[1]]
 
 # Iterate through images in the folder
 for filename in os.listdir(folder_path):

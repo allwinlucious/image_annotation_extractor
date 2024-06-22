@@ -10,6 +10,7 @@ for file in "$directory"/*.jpg; do
     if [ -f "$file" ]; then
         # Extract the filename without the path
         filename=$(basename -- "$file")
+        filename_without_extension="${filename%.jpg}"  # Remove .jpg extension
 
         # Step 1: Delete 'cropped_images' folder if it exists
         folder_to_delete="cropped_images"
@@ -29,7 +30,7 @@ for file in "$directory"/*.jpg; do
         # Step 4: Run white_threshold.py
         python3 white_threshold.py
 
-        # Step 5: Run perform_ocr.py
-        python3 perform_ocr.py
+        # Step 5: Run perform_ocr.py without .jpg extension
+        python3 perform_ocr.py "$filename_without_extension"
     fi
 done
